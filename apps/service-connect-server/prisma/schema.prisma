@@ -1,0 +1,97 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ServiceProviderProfile {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  reviews      Json?
+  skills       String?
+  availability Json?
+  rates        Float?
+  user         User?    @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model Task {
+  id              String          @id @default(cuid())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  description     String?
+  title           String?
+  dueDate         DateTime?
+  status          EnumTaskStatus?
+  serviceProvider String?
+  customer        String?
+  createdBy       String?
+  bookings        Booking[]
+  messages        Message[]
+  reviews         Review[]
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content   String?
+  sentAt    DateTime?
+  sender    String?
+  receiver  String?
+  task      Task?     @relation(fields: [taskId], references: [id])
+  taskId    String?
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  rating          Float?
+  comment         String?
+  reviewer        String?
+  serviceProvider String?
+  task            Task?    @relation(fields: [taskId], references: [id])
+  taskId          String?
+}
+
+model Booking {
+  id            String             @id @default(cuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  status        EnumBookingStatus?
+  scheduledDate DateTime?
+  task          Task?              @relation(fields: [taskId], references: [id])
+  taskId        String?
+}
+
+model User {
+  id                      String                   @id @default(cuid())
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  firstName               String?
+  lastName                String?
+  username                String                   @unique
+  email                   String?                  @unique
+  password                String
+  roles                   Json
+  serviceProviderProfiles ServiceProviderProfile[]
+}
+
+enum EnumTaskStatus {
+  Option1
+}
+
+enum EnumBookingStatus {
+  Option1
+}
